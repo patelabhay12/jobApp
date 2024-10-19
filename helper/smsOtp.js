@@ -1,5 +1,5 @@
 const twilio = require('twilio');
-
+require('dotenv').config();
 const accountSid = process.env.ACCOUNTSID; 
 const authToken = process.env.AUTHTOKEN; 
 const client = new twilio(accountSid, authToken);
@@ -13,3 +13,4 @@ const sendSms = (to, otp) => {
 };
 
 module.exports = { sendSms };
+ 

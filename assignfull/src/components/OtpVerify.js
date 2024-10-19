@@ -5,13 +5,27 @@ const OtpVerify = () => {
 
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
+    const [isEmail, setIsEmail] = useState(false);
+    const [isPhone, setIsPhone] = useState(false);
     const [message, setMessage] = useState('');
 
-    const handleVerify = async (e) => {
+    const handleEmailVerify = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8080/company/verify-otp', { email, otp });
+            console.log('there is i am')
+            await axios.post('http://localhost:8080/api/company/verify-otp-email', { email });
             setMessage('OTP verified successfully!');
+            setIsEmail(true);
+        } catch (error) {
+            setMessage('Failed to verify OTP. Please try again.');
+        }
+    }
+    const handlePhoneVerify = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('http://localhost:8080/api/company/verify-otp-phone', { otp });
+            setMessage('OTP verified successfully!');
+            setIsPhone(true);
         } catch (error) {
             setMessage('Failed to verify OTP. Please try again.');
         }
@@ -34,12 +48,26 @@ const OtpVerify = () => {
                                 type="text"
                                 placeholder="Email OTP"
                                 value={email}
-                                onChange={(e)=>setEmail(e.target.email)}
+                                onChange={(e) => setEmail(e.target.email)}
                                 className="appearance-none bg-transparent border-none text-gray-700  leading-tight focus:outline-none"
+                                disabled={isEmail}
                             />
+
+
+                            {isEmail && <button class="items-center bg-green-500 text-white rounded-full focus:outline-none hover:bg-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L9 14.414l-3.707-3.707a1 1 0 011.414-1.414L9 11.586l6.293-6.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>}
                         </div>
                     </div>
-                    <button className="text-white bg-indigo-500 border-0 py-1 px-4 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold mb-4">Verify</button>
+                    <button
+                        className={`text-white bg-indigo-500 border-0 py-1 px-4 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold mb-4 ${isEmail ? '' : 'opacity-50 cursor-not-allowed'}`}
+                        onClick={handleEmailVerify}
+                        disabled={isEmail}
+                    >
+                        Verify
+                    </button>
                     <div className="relative mb-4">
                         <div className="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
                             <i className="fas fa-phone text-gray-500 mr-3"></i>
@@ -47,19 +75,26 @@ const OtpVerify = () => {
                                 type="text"
                                 placeholder="Phone OTP"
                                 value={otp}
-                                onChange={(e)=>setOtp(e.target.value)}
+                                onChange={(e) => setOtp(e.target.value)}
                                 className="appearance-none bg-transparent border-none text-gray-700  leading-tight focus:outline-none"
+                                disabled={isPhone}
                             />
 
-                            {0 && <button class="items-center bg-green-500 text-white rounded-full focus:outline-none hover:bg-green-600">
+                            {isPhone && <button class="items-center bg-green-500 text-white rounded-full focus:outline-none hover:bg-green-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L9 14.414l-3.707-3.707a1 1 0 011.414-1.414L9 11.586l6.293-6.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
-                            </button> ? "" : ""}
+                            </button>}
                         </div>
 
                     </div>
-                    <button className="text-white bg-indigo-500 border-0 py-1 px-4 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold mb-4" onClick={handleVerify}>Verify</button>
+                    <button
+                        className={`text-white bg-indigo-500 border-0 py-1 px-4 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold mb-4 ${isEmail ? '' : 'opacity-50 cursor-not-allowed'}`}
+                        onClick={handlePhoneVerify}
+                        disabled={isPhone}
+                    >
+                        Verify
+                    </button>
 
                 </div>
             </div>

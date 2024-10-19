@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-// import api from "../api/api";
 import Layout from './Layout/Layout'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
 const SignUp = () => {
-
+    const navigate = useNavigate();
     const [registerData, setRegisterData] = useState({
         name: '',
         phoneNumber: '',
@@ -23,15 +22,17 @@ const SignUp = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8080/api/company/register', {
+            console.log("Yes verify your otp");
+            let comp=await axios.post('http://localhost:8080/api/company/register', {
                 name: registerData.name,
                 phoneNumber: registerData.phoneNumber,
                 companyName: registerData.companyName,
                 companyEmail: registerData.companyEmail,
                 employeeSize: registerData.employeeSize,
             });
+            console.log(comp);
             setMessage('Registration successful! Please verify your email.');
-
+            navigate('/verification');
             setRegisterData({
                 name: '',
                 phoneNumber: '',
@@ -39,6 +40,7 @@ const SignUp = () => {
                 companyEmail: '',
                 employeeSize: '',
             });
+            console.log(registerData)
         } catch (error) {
             setMessage('Failed to register. Please try again.');
         }
@@ -119,7 +121,7 @@ const SignUp = () => {
                     </div>
 
                     <p className="text-xs text-gray-500 mt-3 text-center align-middle p-2">By clicking on proceed you will accept our <span className='text-blue-700'>Terms</span> & <span className='text-blue-700'>Conditions</span></p>
-                    <Link to={'/verification'} className="text-white flex bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold text-center"><button onClick={handleSubmit}>Proceed</button></Link>
+                    <button onClick={handleSubmit} className="text-white flex align-middle text-center justify-center bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg font-bold ">Proceed</button>
                 </div>
             </div>
 

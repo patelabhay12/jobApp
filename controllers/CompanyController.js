@@ -2,15 +2,38 @@ const Company = require('../models/Company');
 const Job = require('../models/Job');
 const nodemailer = require('nodemailer');
 const { sendEmail } = require('../helper/mailer');
-// const { sendSms } = require('../helper/smsOtp');
+const { sendSms } = require('../helper/smsOtp');
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000);
 let otpStore = {};
 
 // Register Company
 exports.register = async (req, res) => {
     const { name, phoneNumber, companyName, companyEmail, employeeSize } = req.body;
-    
+
     try {
+
+
+        console.log(req.body);
+        const existingCompany = await Company.findOne({ companyEmail });
+        if (existingCompany) {
+            return res.status(400).json({ message: 'Company with this email already exists' });
+        }
+
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        }
+        if (!phoneNumber) {
+            return res.status(400).json({ message: 'Phone Number is required' });
+        }
+        if (!companyEmail) {
+            return res.status(400).json({ message: 'company Email is required' });
+        }
+        if (!employeeSize) {
+            return res.status(400).json({ message: 'employee Size  is required' });
+        }
+        if (!companyName) {
+            return res.status(400).json({ message: 'Company Name is required' });
+        }
         const company = new Company({
             name,
             phoneNumber,
@@ -19,21 +42,28 @@ exports.register = async (req, res) => {
             employeeSize,
         });
 
-        await company.save();
+        const savedCompany = await company.save();
+        console.log('Saved company:', savedCompany);
 
-        const otp = generateOtp();
-        otpStore[companyEmail] = otp;
+        // Generate OTP and send verification
+        const otpEmail = generateOtp();
+        const otpPhone = generateOtp();
+        otpStore['Email'] = otpEmail;
+        otpStore['Phone']=otpPhone;
+        console.log(otpStore['Email']);
 
-        
-        await sendEmail(companyEmail, otp);
-        // await sendSms(phoneNumber, otp);
+        console.log("Here i am ") 
+        await sendEmail(companyEmail, otpEmail);
+        await sendSms(phoneNumber, otpPhone);
+        console.log("Here i am not")
 
         res.status(201).json({ message: 'Company registered. Please verify your email and phone with the OTP sent.' });
+
     } catch (error) {
-        res.status(400).json({ message: 'Error registering company', error });
+        console.error('Error registering company:', error.message); // Log error
+        res.status(400).json({ message: 'Error registering company', error: error.message });
     }
 };
-
 
 // Post Job
 exports.postJob = async (req, res) => {
@@ -89,11 +119,21 @@ exports.sendJobAlerts = async (req, res) => {
 };
 
 
-exports.verifyOtp = (req, res) => {
-    const { email, otp } = req.body;
+exports.verifyOtpEmail = (req, res) => {
+    console.log(req.body)
+    const { email } = req.body;
+    if (otpStore['Email']== email) {
+        delete otpStore['Email'];
+        return res.status(200).json({ message: 'OTP verified successfully!' });
+    } else {
+        return res.status(400).json({ message: 'Invalid OTP or OTP expired.' });
+    }
+};
+exports.verifyOtpPhone = (req, res) => {
+    const { otp } = req.body;
 
-    if (otpStore[email] && otpStore[email] === otp) {
-        delete otpStore[email]; 
+    if (otpStore['Phone']== otp) {
+        delete otpStore['Phone'];
         return res.status(200).json({ message: 'OTP verified successfully!' });
     } else {
         return res.status(400).json({ message: 'Invalid OTP or OTP expired.' });
